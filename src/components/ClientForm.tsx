@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 interface ClientFormData {
   name: string
   email: string
+  emailNotObtained: boolean
   phone: string
   serviceType: string
   contractValue: string
@@ -25,6 +26,7 @@ export default function ClientForm({ initial, mode }: ClientFormProps) {
   const [form, setForm] = useState<ClientFormData>({
     name: initial?.name ?? '',
     email: initial?.email ?? '',
+    emailNotObtained: initial?.emailNotObtained ?? false,
     phone: initial?.phone ?? '',
     serviceType: initial?.serviceType ?? 'website',
     contractValue: initial?.contractValue ?? '',
@@ -38,6 +40,12 @@ export default function ClientForm({ initial, mode }: ClientFormProps) {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setError('')
+
+    if (!form.emailNotObtained && !form.email.trim()) {
+      setError('Email is required. If not available, check "Not obtained".')
+      return
+    }
+
     setSaving(true)
 
     try {
@@ -52,7 +60,8 @@ export default function ClientForm({ initial, mode }: ClientFormProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: form.name,
-          email: form.email || null,
+          email: form.emailNotObtained ? null : (form.email || null),
+          emailNotObtained: form.emailNotObtained,
           phone: form.phone || null,
           serviceType: form.serviceType,
           contractValue: form.contractValue ? Number(form.contractValue) : null,
@@ -126,7 +135,31 @@ export default function ClientForm({ initial, mode }: ClientFormProps) {
         )}
       </div>
 
-      {field('Email', 'email', 'email')}
+      <div>
+        <label className="block text-sm font-medium text-slate-700 mb-1">
+          Email <span className="text-red-500">*</span>
+        </label>
+        <div className="flex items-center gap-3">
+          <input
+            type="email"
+            value={form.email}
+            onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+            disabled={form.emailNotObtained}
+            placeholder={form.emailNotObtained ? 'Not obtained' : ''}
+            className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400 disabled:bg-slate-50 disabled:text-slate-400"
+          />
+          <label className="flex items-center gap-1.5 text-sm text-slate-600 cursor-pointer select-none whitespace-nowrap">
+            <input
+              type="checkbox"
+              checked={form.emailNotObtained}
+              onChange={(e) => setForm((f) => ({ ...f, emailNotObtained: e.target.checked, email: e.target.checked ? '' : f.email }))}
+              className="rounded border-slate-300"
+            />
+            Not obtained
+          </label>
+        </div>
+      </div>
+
       {field('Phone', 'phone', 'tel')}
 
       <div>

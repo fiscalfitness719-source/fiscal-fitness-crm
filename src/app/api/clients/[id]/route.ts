@@ -36,14 +36,15 @@ export async function PATCH(
     const { id: idStr } = await params
     const id = Number(idStr)
     const body = await request.json()
-    const { name, email, phone, contractValue, startDate } = body
+    const { name, email, emailNotObtained, phone, contractValue, startDate } = body
 
     const db = getDb()
     const [updated] = await db
       .update(clients)
       .set({
         name: name ?? undefined,
-        email: email !== undefined ? (email || null) : undefined,
+        email: emailNotObtained ? null : email !== undefined ? (email || null) : undefined,
+        emailNotObtained: emailNotObtained !== undefined ? emailNotObtained : undefined,
         phone: phone !== undefined ? (phone || null) : undefined,
         contractValue:
           contractValue !== undefined

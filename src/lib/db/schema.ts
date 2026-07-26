@@ -41,6 +41,7 @@ export const clients = pgTable('clients', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 200 }).notNull(),
   email: varchar('email', { length: 255 }),
+  emailNotObtained: boolean('email_not_obtained').notNull().default(false),
   phone: varchar('phone', { length: 50 }),
   // 'website' | 'bookkeeping' | 'both'
   serviceType: varchar('service_type', { length: 20 }).notNull(),
@@ -64,6 +65,16 @@ export const notes = pgTable('notes', {
   clientId: integer('client_id')
     .notNull()
     .references(() => clients.id, { onDelete: 'cascade' }),
+  content: text('content').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export const followUps = pgTable('follow_ups', {
+  id: serial('id').primaryKey(),
+  clientId: integer('client_id')
+    .notNull()
+    .references(() => clients.id, { onDelete: 'cascade' }),
+  type: varchar('type', { length: 50 }).notNull(),
   content: text('content').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
 })

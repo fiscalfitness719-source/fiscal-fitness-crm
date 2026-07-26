@@ -7,6 +7,7 @@ import {
   clientTasks,
   notes as notesTable,
   stageHistory,
+  followUps as followUpsTable,
 } from '@/lib/db/schema'
 import {
   getStage,
@@ -22,6 +23,7 @@ import StageAdvancer from '@/components/StageAdvancer'
 import ClientForm from '@/components/ClientForm'
 import ClientDetailTabs from '@/components/ClientDetailTabs'
 import ArchiveDeleteButtons from '@/components/ArchiveDeleteButtons'
+import FollowUpsList from '@/components/FollowUpsList'
 
 export const runtime = 'edge'
 export const dynamic = 'force-dynamic'
@@ -43,7 +45,7 @@ export default async function ClientDetailPage({
 
   if (!client) notFound()
 
-  const [tasks, notes, history] = await Promise.all([
+  const [tasks, notes, history, followUps] = await Promise.all([
     db
       .select()
       .from(clientTasks)
@@ -59,6 +61,11 @@ export default async function ClientDetailPage({
       .from(stageHistory)
       .where(eq(stageHistory.clientId, id))
       .orderBy(asc(stageHistory.movedAt)),
+    db
+      .select()
+      .from(followUpsTable)
+      .where(eq(followUpsTable.clientId, id))
+      .orderBy(desc(followUpsTable.createdAt)),
   ])
 
   const serviceType = client.serviceType as ServiceType
@@ -116,6 +123,13 @@ export default async function ClientDetailPage({
     movedAt: h.movedAt.toISOString(),
   }))
 
+  const serializedFollowUps = followUps.map((f) => ({
+    id: f.id,
+    type: f.type,
+    content: f.content,
+    createdAt: f.createdAt.toISOString(),
+  }))
+
   return (
     <div className="max-w-3xl mx-auto px-6 py-8">
       <div className="mb-4">
@@ -150,7 +164,11 @@ export default async function ClientDetailPage({
             </div>
 
             <div className="flex flex-wrap gap-4 mt-3 text-sm text-slate-500">
-              {client.email && <span>{client.email}</span>}
+              {client.emailNotObtained ? (
+                <span className="text-slate-400 italic">Email not obtained</span>
+              ) : client.email ? (
+                <span>{client.email}</span>
+              ) : null}
               {client.phone && <span>{client.phone}</span>}
               {client.contractValue && (
                 <span>${Number(client.contractValue).toLocaleString()}/yr</span>
@@ -188,6 +206,7 @@ export default async function ClientDetailPage({
                         id: client.id,
                         name: client.name,
                         email: client.email ?? '',
+                        emailNotObtained: client.emailNotObtained,
                         phone: client.phone ?? '',
                         serviceType: client.serviceType,
                         contractValue: client.contractValue ?? '',
@@ -216,6 +235,13 @@ export default async function ClientDetailPage({
                   tasks={serializedTasks}
                   activeStages={activeStages}
                 />
+              ),
+            },
+            {
+              id: 'follow-ups',
+              label: `Follow Ups (${followUps.length})`,
+              content: (
+                <FollowUpsList clientId={client.id} followUps={serializedFollowUps} />
               ),
             },
             {

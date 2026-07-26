@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import KanbanColumn from './KanbanColumn'
-import { STAGES, ServiceTrack } from '@/lib/stages'
+import ClientCard from './ClientCard'
+import { STAGES, ServiceTrack, stageTrackColor } from '@/lib/stages'
 
 interface Client {
   id: number
@@ -85,6 +85,7 @@ export default function KanbanBoard({ clients }: { clients: Client[] }) {
 
   const entries = buildEntries(clients, filter)
   const visibleStages = getVisibleStages(filter)
+  const activeStages = visibleStages.filter((s) => (entries[s.code] ?? []).length > 0)
 
   const filterBtn = (label: string, value: ViewFilter, color: string) => (
     <button
@@ -120,19 +121,45 @@ export default function KanbanBoard({ clients }: { clients: Client[] }) {
         </div>
       </div>
 
-      {/* Kanban scroll area */}
-      <div className="flex-1 overflow-x-auto scrollbar-thin">
-        <div className="flex gap-4 p-6 min-w-max h-full items-start">
-          {visibleStages.map((stage) => (
-            <KanbanColumn
-              key={stage.code}
-              stageCode={stage.code}
-              stageName={stage.name}
-              serviceTrack={stage.serviceTrack as ServiceTrack}
-              entries={entries[stage.code] ?? []}
-            />
-          ))}
-        </div>
+      {/* Vertical pipeline */}
+      <div className="flex-1 overflow-y-auto">
+        {activeStages.length === 0 ? (
+          <div className="flex items-center justify-center h-48 text-slate-400 text-sm">
+            No clients in pipeline.
+          </div>
+        ) : (
+          <div className="p-6 space-y-8">
+            {activeStages.map((stage) => {
+              const stageEntries = entries[stage.code] ?? []
+              return (
+                <div key={stage.code}>
+                  <div className="flex items-center gap-2 mb-3">
+                    <span
+                      className={`inline-block px-2 py-0.5 rounded text-xs font-semibold ${stageTrackColor(stage.serviceTrack as ServiceTrack)}`}
+                    >
+                      {stage.code}
+                    </span>
+                    <span className="text-sm font-semibold text-slate-700">{stage.name}</span>
+                    <span className="text-xs text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded-full">
+                      {stageEntries.length}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                    {stageEntries.map((entry) => (
+                      <ClientCard
+                        key={`${entry.client.id}-${entry.displayTrack}`}
+                        client={entry.client}
+                        displayStage={entry.displayStage}
+                        displayTrack={entry.displayTrack}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
       </div>
     </div>
   )

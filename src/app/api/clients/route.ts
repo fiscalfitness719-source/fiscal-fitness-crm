@@ -22,7 +22,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { name, email, phone, serviceType, contractValue, startDate } = body
+    const { name, email, emailNotObtained, phone, serviceType, contractValue, startDate } = body
 
     if (!name || !serviceType) {
       return Response.json({ error: 'name and serviceType are required' }, { status: 400 })
@@ -38,7 +38,8 @@ export async function POST(request: Request) {
       .insert(clients)
       .values({
         name,
-        email: email || null,
+        email: emailNotObtained ? null : (email || null),
+        emailNotObtained: emailNotObtained ?? false,
         phone: phone || null,
         serviceType,
         websiteStage,
