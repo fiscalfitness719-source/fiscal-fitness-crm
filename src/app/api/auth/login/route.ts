@@ -40,6 +40,7 @@ export async function POST(request: Request) {
     return new Response(response.body, { status: 200, headers })
   } catch (err) {
     console.error(err)
-    return Response.json({ error: 'Server error' }, { status: 500 })
+    const detail = err instanceof Error ? err.message : String(err)
+    return Response.json({ error: 'Server error', detail }, { status: 500 })
   }
 }
