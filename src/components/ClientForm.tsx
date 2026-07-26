@@ -98,7 +98,7 @@ export default function ClientForm({ initial, mode }: ClientFormProps) {
       </label>
       <input
         type={type}
-        value={form[name]}
+        value={form[name] as string}
         onChange={(e) => update(name, e.target.value)}
         required={required}
         className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-400"

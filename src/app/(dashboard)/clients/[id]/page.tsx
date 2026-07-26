@@ -8,6 +8,7 @@ import {
   notes as notesTable,
   stageHistory,
   followUps as followUpsTable,
+  proposals,
 } from '@/lib/db/schema'
 import {
   getStage,
@@ -24,6 +25,7 @@ import ClientForm from '@/components/ClientForm'
 import ClientDetailTabs from '@/components/ClientDetailTabs'
 import ArchiveDeleteButtons from '@/components/ArchiveDeleteButtons'
 import FollowUpsList from '@/components/FollowUpsList'
+import ProposalsList from '@/components/ProposalsList'
 
 export const runtime = 'edge'
 export const dynamic = 'force-dynamic'
@@ -45,7 +47,7 @@ export default async function ClientDetailPage({
 
   if (!client) notFound()
 
-  const [tasks, notes, history, followUps] = await Promise.all([
+  const [tasks, notes, history, followUps, clientProposals] = await Promise.all([
     db
       .select()
       .from(clientTasks)
@@ -66,6 +68,17 @@ export default async function ClientDetailPage({
       .from(followUpsTable)
       .where(eq(followUpsTable.clientId, id))
       .orderBy(desc(followUpsTable.createdAt)),
+    db
+      .select({
+        id: proposals.id,
+        title: proposals.title,
+        status: proposals.status,
+        createdAt: proposals.createdAt,
+        updatedAt: proposals.updatedAt,
+      })
+      .from(proposals)
+      .where(eq(proposals.clientId, id))
+      .orderBy(desc(proposals.createdAt)),
   ])
 
   const serviceType = client.serviceType as ServiceType
@@ -128,6 +141,14 @@ export default async function ClientDetailPage({
     type: f.type,
     content: f.content,
     createdAt: f.createdAt.toISOString(),
+  }))
+
+  const serializedProposals = clientProposals.map((p) => ({
+    id: p.id,
+    title: p.title,
+    status: p.status,
+    createdAt: p.createdAt.toISOString(),
+    updatedAt: p.updatedAt.toISOString(),
   }))
 
   return (
@@ -234,6 +255,16 @@ export default async function ClientDetailPage({
                   clientId={client.id}
                   tasks={serializedTasks}
                   activeStages={activeStages}
+                />
+              ),
+            },
+            {
+              id: 'proposals',
+              label: `Proposals (${clientProposals.length})`,
+              content: (
+                <ProposalsList
+                  clientId={client.id}
+                  proposals={serializedProposals}
                 />
               ),
             },

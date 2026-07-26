@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import type { ReactNode } from 'react'
 
-type Tab = 'overview' | 'tasks' | 'notes' | 'history'
+type Tab = 'overview' | 'tasks' | 'proposals' | 'follow-ups' | 'notes' | 'history'
 
 export default function ClientDetailTabs({
   tabs,

@@ -92,6 +92,29 @@ export const stageHistory = pgTable('stage_history', {
   movedAt: timestamp('moved_at', { withTimezone: true }).defaultNow().notNull(),
 })
 
+export const proposals = pgTable('proposals', {
+  id: serial('id').primaryKey(),
+  clientId: integer('client_id').notNull().references(() => clients.id, { onDelete: 'cascade' }),
+  title: varchar('title', { length: 255 }).notNull(),
+  status: varchar('status', { length: 20 }).notNull().default('draft'),
+  coverNote: text('cover_note'),
+  termsText: text('terms_text'),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+})
+
+export const proposalItems = pgTable('proposal_items', {
+  id: serial('id').primaryKey(),
+  proposalId: integer('proposal_id').notNull().references(() => proposals.id, { onDelete: 'cascade' }),
+  // 'scope' | 'pricing'
+  section: varchar('section', { length: 20 }).notNull(),
+  description: text('description').notNull(),
+  amount: decimal('amount', { precision: 10, scale: 2 }),
+  // 'one_time' | 'monthly' | 'annual'
+  frequency: varchar('frequency', { length: 20 }),
+  sortOrder: integer('sort_order').notNull().default(0),
+})
+
 // Per-client task instances, grouped by the stage they were created for
 export const clientTasks = pgTable('client_tasks', {
   id: serial('id').primaryKey(),
