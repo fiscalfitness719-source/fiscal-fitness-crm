@@ -1,0 +1,17 @@
+import type { Metadata } from 'next'
+import './globals.css'
+
+export const runtime = 'edge'
+
+export const metadata: Metadata = {
+  title: 'Fiscal Fitness CRM',
+  description: 'Client pipeline manager',
+}
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  )
+}
