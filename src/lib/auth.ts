@@ -63,6 +63,7 @@ function getJwtSecret() {
 export async function signToken(payload: {
   userId: number
   username: string
+  role: string
 }): Promise<string> {
   return new SignJWT(payload)
     .setProtectedHeader({ alg: 'HS256' })
@@ -73,11 +74,17 @@ export async function signToken(payload: {
 
 export async function verifyToken(
   token: string
-): Promise<{ userId: number; username: string } | null> {
+): Promise<{ userId: number; username: string; role: string } | null> {
   try {
     const { payload } = await jwtVerify(token, getJwtSecret())
-    return payload as { userId: number; username: string }
+    return payload as { userId: number; username: string; role: string }
   } catch {
     return null
   }
+}
+
+export function generateTempPassword(): string {
+  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789'
+  const bytes = crypto.getRandomValues(new Uint8Array(12))
+  return Array.from(bytes).map((b) => chars[b % chars.length]).join('')
 }

@@ -7,9 +7,9 @@ export const runtime = 'edge'
 
 export async function POST(request: Request) {
   try {
-    const { username, password } = await request.json()
+    const { email, password } = await request.json()
 
-    if (!username || !password) {
+    if (!email || !password) {
       return Response.json({ error: 'Missing credentials' }, { status: 400 })
     }
 
@@ -17,7 +17,7 @@ export async function POST(request: Request) {
     const [user] = await db
       .select()
       .from(users)
-      .where(eq(users.username, username))
+      .where(eq(users.email, email.toLowerCase().trim()))
       .limit(1)
 
     if (!user) {

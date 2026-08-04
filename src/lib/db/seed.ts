@@ -1,4 +1,5 @@
-import 'dotenv/config'
+import { config } from 'dotenv'
+config({ path: '.env.local' })
 import { getDb } from './index'
 import { stages, checklistTemplates, users } from './schema'
 import { hashPassword } from '../auth'
@@ -129,7 +130,7 @@ async function seed() {
   await db
     .insert(users)
     .values({ username, passwordHash })
-    .onConflictDoNothing()
+    .onConflictDoUpdate({ target: users.username, set: { passwordHash } })
 
   console.log('Seed complete.')
 }
