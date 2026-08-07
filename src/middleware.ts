@@ -7,6 +7,7 @@ const PUBLIC = [
   '/api/auth/login',
   '/api/auth/member-login',
   '/api/leads',
+  '/api/assessment',
   '/api/checkout',
   '/api/webhooks/stripe',
   '/members/login',
