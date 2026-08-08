@@ -39,7 +39,7 @@ export async function POST(request: Request) {
 
     // Notification email to Cody
     await resend.emails.send({
-      from: 'Fiscal Fitness <notifications@fiscalfitness.com>',
+      from: 'Fiscal Fitness <onboarding@resend.dev>',
       to: process.env.NOTIFICATION_EMAIL!,
       subject: `New Assessment: ${firstName} (${email}) — ${overallScore}/100`,
       html: `
@@ -70,7 +70,7 @@ export async function POST(request: Request) {
 
     // Results email to visitor
     await resend.emails.send({
-      from: 'Fiscal Fitness <results@fiscalfitness.com>',
+      from: 'Fiscal Fitness <onboarding@resend.dev>',
       replyTo: process.env.NOTIFICATION_EMAIL!,
       to: email,
       subject: `Your Fiscal Fitness Business Readiness Results — ${overallScore}/100`,

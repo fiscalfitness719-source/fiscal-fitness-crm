@@ -93,7 +93,7 @@ export async function POST(request: Request) {
     const appUrl = new URL(request.url).origin
     const resend = new Resend(process.env.RESEND_API_KEY)
     await resend.emails.send({
-      from: 'Fiscal Fitness <notifications@fiscalfitness.com>',
+      from: 'Fiscal Fitness <onboarding@resend.dev>',
       to: process.env.NOTIFICATION_EMAIL!,
       subject: `New Lead: ${firstName} ${lastName}`,
       html: `
