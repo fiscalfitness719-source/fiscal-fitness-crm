@@ -71,7 +71,7 @@ export async function POST(request: Request) {
     // Results email to visitor
     await resend.emails.send({
       from: 'Fiscal Fitness <results@fiscalfitness.com>',
-      reply_to: process.env.NOTIFICATION_EMAIL!,
+      replyTo: process.env.NOTIFICATION_EMAIL!,
       to: email,
       subject: `Your Fiscal Fitness Business Readiness Results — ${overallScore}/100`,
       html: `
